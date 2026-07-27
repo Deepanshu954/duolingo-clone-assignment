@@ -3,6 +3,10 @@ set -euo pipefail
 
 mkdir -p /app/db
 
+if [ ! -f /app/db/duolingo.db ]; then
+  PYTHONPATH=/app/backend python /app/backend/app/db/seed.py
+fi
+
 PYTHONPATH=/app/backend python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 &
 BACKEND_PID=$!
 

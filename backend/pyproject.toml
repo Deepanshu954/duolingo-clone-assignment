@@ -1,3 +1,18 @@
+[project]
+name = "duolingo-clone-assignment-api"
+version = "1.0.0"
+description = "FastAPI backend for the Duolingo clone assignment"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "fastapi==0.115.0",
+    "uvicorn[standard]==0.30.0",
+    "sqlalchemy[asyncio]==2.0.32",
+    "aiosqlite==0.20.0",
+    "pydantic==2.9.0",
+    "pydantic-settings==2.5.0",
+    "python-multipart==0.0.9",
+]
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]

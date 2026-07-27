@@ -16,6 +16,94 @@ let fallbackActiveCourseId = 1;
 let fallbackUserGems = 1500;
 let fallbackUserHearts = 5;
 
+const FALLBACK_EXERCISES = [
+  {
+    id: 1,
+    order: 1,
+    type: "multiple_choice",
+    prompt: 'Which one of these means "hello"?',
+    target_sentence: "Hola",
+    options: [
+      { text: "Hola", icon: "👋", hint: "Used as a friendly informal & formal greeting at any time of day." },
+      { text: "Buenos días", icon: "☕", hint: "Used in morning hours until noon." },
+      { text: "Gracias", icon: "🥪", hint: "Expression of gratitude." },
+      { text: "Por favor", icon: "🙏", hint: "Polite request expression." },
+    ],
+  },
+  {
+    id: 2,
+    order: 2,
+    type: "image_choice",
+    prompt: 'Select the correct image for "el café" (coffee)',
+    target_sentence: "El café",
+    image_options: [
+      { id: "c1", label: "El café", icon: "☕" },
+      { id: "c2", label: "El pan", icon: "🍞" },
+      { id: "c3", label: "El agua", icon: "💧" },
+      { id: "c4", label: "La leche", icon: "🥛" },
+    ],
+  },
+  {
+    id: 3,
+    order: 3,
+    type: "word_bank",
+    prompt: 'Translate to English: "Yo quiero agua, por favor"',
+    target_sentence: "Yo quiero agua, por favor",
+    sentence_parts: ["I", "want", "water", "please", "hello", "coffee", "thank you"],
+  },
+  {
+    id: 4,
+    order: 4,
+    type: "fill_blank",
+    prompt: "Complete the sentence with the correct verb",
+    target_sentence: "Ella ___ una manzana cada mañana",
+    sentence_parts: ["come", "bebe", "corre", "habla"],
+  },
+  {
+    id: 5,
+    order: 5,
+    type: "match_pairs",
+    prompt: "Tap the matching pairs of words",
+    target_sentence: "Matching Pairs",
+    pairs: [
+      { left: "Hola", right: "Hello" },
+      { left: "Gracias", right: "Thank you" },
+      { left: "Por favor", right: "Please" },
+      { left: "Agua", right: "Water" },
+    ],
+  },
+  {
+    id: 6,
+    order: 6,
+    type: "type_answer",
+    prompt: 'Type in Spanish: "Good morning, how are you?"',
+    target_sentence: "Buenos días, ¿cómo estás?",
+  },
+  {
+    id: 7,
+    order: 7,
+    type: "word_bank",
+    prompt: 'Translate to Spanish: "A coffee and bread, please"',
+    target_sentence: "Un café y pan, por favor",
+    sentence_parts: ["Un", "café", "y", "pan", "por", "favor", "hola", "gracias"],
+  },
+  {
+    id: 8,
+    order: 8,
+    type: "multiple_choice",
+    prompt: 'How do you say "Thank you very much"?',
+    target_sentence: "Muchas gracias",
+    options: [
+      { text: "Muchas gracias", icon: "🙏", hint: "Expresses deep gratitude." },
+      { text: "De nada", icon: "🤝", hint: "You're welcome." },
+      { text: "Hasta luego", icon: "👋", hint: "See you later." },
+      { text: "Lo siento", icon: "😔", hint: "I'm sorry." },
+    ],
+  },
+];
+
+const fallbackSessionMap: Record<string, { currentIndex: number; correct: number; xpEarned: number }> = {};
+
 async function apiFetch<T>(path: string, options: FetchOptions = {}): Promise<T> {
   const { userId = 1, ...fetchOptions } = options;
 
@@ -176,42 +264,52 @@ function getFallbackData<T>(path: string, requestBody: string | null): T {
   }
 
   if (path.includes("/lessons/") && path.includes("/start")) {
+    const sId = "demo-fallback-session-123";
+    fallbackSessionMap[sId] = { currentIndex: 0, correct: 0, xpEarned: 0 };
     return {
-      session_id: "demo-fallback-session-123",
-      total_exercises: 8,
+      session_id: sId,
+      total_exercises: FALLBACK_EXERCISES.length,
       current_index: 0,
-      exercise: {
-        id: 1,
-        order: 1,
-        type: "multiple_choice",
-        prompt: 'Which one of these is "hello"?',
-        target_sentence: "Hola",
-        options: [
-          { text: "Hola", icon: "👋", hint: "Used as a friendly informal & formal greeting at any time of day." },
-          { text: "Buenos días", icon: "☕", hint: "Used in morning hours until noon." },
-          { text: "Gracias", icon: "🥪", hint: "Expression of gratitude." },
-        ],
-      },
+      exercise: FALLBACK_EXERCISES[0],
     } as unknown as T;
   }
 
   if (path.includes("/lessons/sessions/") && path.includes("/submit")) {
+    const sId = "demo-fallback-session-123";
+    const sess = fallbackSessionMap[sId] || { currentIndex: 0, correct: 0, xpEarned: 0 };
+    sess.currentIndex += 1;
+    sess.correct += 1;
+    sess.xpEarned += 10;
+    fallbackSessionMap[sId] = sess;
+
+    const completed = sess.currentIndex >= FALLBACK_EXERCISES.length;
+    const nextEx = completed ? null : FALLBACK_EXERCISES[sess.currentIndex];
+
     return {
       is_correct: true,
-      correct_answer: "Hola",
-      xp_earned: 10,
+      correct_answer: "Correct!",
+      xp_earned: sess.xpEarned,
       hearts: fallbackUserHearts,
-      current_index: 1,
-      total: 8,
-      completed: false,
-      exercise: {
-        id: 2,
-        order: 2,
-        type: "word_bank",
-        prompt: "Write this in English",
-        target_sentence: "Hola",
-        sentence_parts: ["Hello", "Good morning", "Thank you", "want", "please", "a"],
-      },
+      current_index: sess.currentIndex,
+      total: FALLBACK_EXERCISES.length,
+      completed: completed,
+      exercise: nextEx,
+    } as unknown as T;
+  }
+
+  if (path.includes("/lessons/sessions/")) {
+    const sId = "demo-fallback-session-123";
+    const sess = fallbackSessionMap[sId] || { currentIndex: 0, correct: 0, xpEarned: 0 };
+    const completed = sess.currentIndex >= FALLBACK_EXERCISES.length;
+    return {
+      session_id: sId,
+      current_index: sess.currentIndex,
+      total: FALLBACK_EXERCISES.length,
+      correct: sess.correct,
+      xp_earned: sess.xpEarned,
+      hearts: fallbackUserHearts,
+      completed: completed,
+      exercise: completed ? null : FALLBACK_EXERCISES[sess.currentIndex],
     } as unknown as T;
   }
 

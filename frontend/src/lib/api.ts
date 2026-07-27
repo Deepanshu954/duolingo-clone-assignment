@@ -589,10 +589,24 @@ function getFallbackData<T>(path: string, requestBody: string | null): T {
     } as unknown as T;
   }
 
-  const activeExercises = LANGUAGE_EXERCISES[currentId] || LANGUAGE_EXERCISES[1];
+  const sessionMatch = path.match(/\/lessons\/sessions\/([^/]+)/);
+  const requestedSessionId = sessionMatch ? sessionMatch[1] : null;
+
+  let targetCourseId = currentId;
+  if (requestedSessionId && requestedSessionId.includes("demo-fallback-session-")) {
+    const parts = requestedSessionId.split("-");
+    const lastNum = parseInt(parts[parts.length - 1], 10);
+    if (!isNaN(lastNum) && lastNum >= 1 && lastNum <= 5) {
+      targetCourseId = lastNum;
+    }
+  }
+
+  const activeExercises = LANGUAGE_EXERCISES[targetCourseId] || LANGUAGE_EXERCISES[1];
 
   if (path.includes("/lessons/") && path.includes("/start")) {
-    const sId = `demo-fallback-session-${currentId}`;
+    const lessonIdMatch = path.match(/\/lessons\/(\d+)\/start/);
+    const lessonId = lessonIdMatch ? lessonIdMatch[1] : "101";
+    const sId = `demo-fallback-session-${lessonId}`;
     fallbackSessionMap[sId] = { currentIndex: 0, correct: 0, xpEarned: 0 };
     return {
       session_id: sId,
@@ -603,7 +617,7 @@ function getFallbackData<T>(path: string, requestBody: string | null): T {
   }
 
   if (path.includes("/lessons/sessions/") && path.includes("/submit")) {
-    const sId = `demo-fallback-session-${currentId}`;
+    const sId = requestedSessionId || `demo-fallback-session-${currentId}`;
     const sess = fallbackSessionMap[sId] || { currentIndex: 0, correct: 0, xpEarned: 0 };
     sess.currentIndex += 1;
     sess.correct += 1;
@@ -626,7 +640,7 @@ function getFallbackData<T>(path: string, requestBody: string | null): T {
   }
 
   if (path.includes("/lessons/sessions/")) {
-    const sId = `demo-fallback-session-${currentId}`;
+    const sId = requestedSessionId || `demo-fallback-session-${currentId}`;
     const sess = fallbackSessionMap[sId] || { currentIndex: 0, correct: 0, xpEarned: 0 };
     const completed = sess.currentIndex >= activeExercises.length;
     return {
@@ -732,11 +746,13 @@ export interface PathData {
 export interface ExerciseData {
   id: number;
   order: number;
-  type: "multiple_choice" | "word_bank" | "match_pairs" | "fill_blank" | "type_answer";
+  type: "multiple_choice" | "image_choice" | "word_bank" | "match_pairs" | "fill_blank" | "type_answer";
   prompt: string;
   target_sentence?: string;
   options?: any;
   sentence_parts?: string[];
+  pairs?: any;
+  image_options?: any;
 }
 
 export interface SessionStart {

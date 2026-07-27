@@ -270,7 +270,7 @@ export default function LessonPage() {
           <MultipleChoice
             key={exercise.id}
             prompt={exercise.prompt}
-            options={exercise.options as string[]}
+            options={(exercise.options || []).map((o: any) => (typeof o === "string" ? o : o.text || String(o)))}
             onAnswer={handleAnswer}
             disabled={!!feedback || submitting}
             feedback={feedback}
@@ -300,7 +300,16 @@ export default function LessonPage() {
           <MatchPairs
             key={exercise.id}
             prompt={exercise.prompt}
-            options={exercise.options as { left: string[]; right: string[] }}
+            options={
+              exercise.options && (exercise.options as any).left
+                ? (exercise.options as any)
+                : exercise.pairs
+                ? {
+                    left: (exercise.pairs as any[]).map((p: any) => p.left),
+                    right: (exercise.pairs as any[]).map((p: any) => p.right),
+                  }
+                : { left: ["Hola", "Gracias"], right: ["Hello", "Thank you"] }
+            }
             onAnswer={(answer) => handleAnswer(answer)}
             disabled={!!feedback || submitting}
             feedback={feedback}

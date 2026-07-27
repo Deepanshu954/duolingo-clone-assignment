@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- Font Face (Self-hosted) --- */
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Nunito Regular'), local('Nunito-Regular');
+}
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Nunito Bold'), local('Nunito-Bold');
+}
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: local('Nunito ExtraBold'), local('Nunito-ExtraBold');
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: #f7f7f7;
+  color: #1f2937;
+  font-family: 'Nunito', Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+.dark body,
+body.dark {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+
+@layer components {
+  .btn-3d {
+    @apply rounded-2xl border-b-4 px-4 py-3 text-center font-black uppercase tracking-wide transition active:translate-y-0.5 active:border-b-2 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer;
+  }
+
+  .btn-3d-green {
+    @apply border-[#46a302] bg-[#58cc02] text-white hover:bg-[#61e002];
+  }
+
+  .btn-3d-blue {
+    @apply border-[#1488c9] bg-[#1cb0f6] text-white hover:bg-[#35bcff];
+  }
+
+  .btn-3d-red {
+    @apply border-red-600 bg-red-500 text-white hover:bg-red-400;
+  }
+
+  .btn-3d-yellow {
+    @apply border-yellow-600 bg-yellow-400 text-yellow-950 hover:bg-yellow-300;
+  }
+
+  .duo-card {
+    @apply rounded-2xl border-2 border-gray-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900;
+  }
+
+  .feedback-bar {
+    @apply fixed bottom-0 left-0 right-0 p-5 flex items-center justify-between z-50 animate-in slide-in-from-bottom duration-200;
+  }
+
+  .feedback-correct {
+    @apply border-t-2 border-emerald-500 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-200;
+  }
+
+  .feedback-wrong {
+    @apply border-t-2 border-red-500 bg-red-50 text-red-800 dark:bg-red-950/80 dark:text-red-200;
+  }
+}
+
+/* Animations */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.animate-shake {
+  animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 1.5s infinite;
+}

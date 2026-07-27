@@ -8,7 +8,7 @@ A full-stack Duolingo-style learning app built for the assignment brief. It recr
 - Backend: Python, FastAPI, SQLAlchemy async ORM
 - Database: SQLite with seeded course and learner data
 - Auth: Simplified default learner using `X-User-ID: 1`
-- Deployment target: Vercel frontend + Render FastAPI backend
+- Deployment target: Vercel full-stack demo, with Render backend config included for a two-service deployment
 
 ## Features
 
@@ -30,7 +30,7 @@ Tailwind components           SQLAlchemy models
 NEXT_PUBLIC_API_URL           SQLite database + seed data
 ```
 
-Local development uses Next.js rewrites from `/api/v1/*` to `http://localhost:8000/api/v1/*`. Hosted frontend builds should set `NEXT_PUBLIC_API_URL` to the Render backend base URL.
+Local development uses Next.js rewrites from `/api/v1/*` to `http://localhost:8000/api/v1/*`. Hosted builds can either call a separate backend using `NEXT_PUBLIC_API_URL` or use the included Vercel Python function at same-origin `/api/v1`.
 
 ## Database Schema
 
@@ -116,20 +116,27 @@ For Vercel, set `NEXT_PUBLIC_API_URL` to the Render backend base URL, without `/
 
 ## Deployment
 
-Backend on Render:
+Full-stack demo on Vercel:
+
+- Import the GitHub repository or deploy with `npx vercel --prod`.
+- Use the root `vercel.json`.
+- Leave `NEXT_PUBLIC_API_URL` unset to use the same-origin Vercel Python backend.
+- The Vercel serverless backend stores SQLite in `/tmp`, so demo data can reset between cold starts.
+
+Optional backend on Render:
 
 - Use `render.yaml` from the repository root.
 - The service root is `backend`.
 - Build command: `pip install -r requirements.txt`
 - Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
 
-Frontend on Vercel:
+Separate frontend on Vercel:
 
 - Import the GitHub repository.
 - Use the root `vercel.json`.
 - Set `NEXT_PUBLIC_API_URL` to the Render backend URL.
 
-Render free services have an ephemeral filesystem. This is acceptable for a demo, but SQLite data can reset after redeploys/spin-downs. For durable hosted progress, attach a paid Render persistent disk or move the database to a hosted relational store.
+Render free services and Vercel serverless functions both have ephemeral filesystems. This is acceptable for a demo, but SQLite data can reset after redeploys, spin-downs, or cold starts. For durable hosted progress, attach a paid Render persistent disk or move the database to a hosted relational store.
 
 ## Verification
 

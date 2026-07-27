@@ -59,12 +59,32 @@ async def get_learning_path(
     )
     completed_lesson_ids = set(completed_result.scalars().all())
 
+    from datetime import datetime, timezone
+    now = datetime.now(timezone.utc)
+    # Check if user actually has an active premium
+    has_active_premium = (
+        user.is_premium
+        and user.premium_until is not None
+        and user.premium_until.replace(tzinfo=timezone.utc) > now
+    )
+
     units_out = []
     for unit in sorted(course.units, key=lambda u: u.order):
+        is_premium_locked = False
+        if unit.order > 1 and not has_active_premium:
+            is_premium_locked = True
+
         skills_out = []
         for skill in sorted(unit.skills, key=lambda s: s.order):
             sp = progress_map.get(skill.id)
-            is_locked = sp.is_locked if sp else True
+            if has_active_premium or unit.order == 1:
+                is_locked = False
+            else:
+                is_locked = True
+                
+            if is_premium_locked:
+                is_locked = True
+            
             completed = sp.completed_lessons if sp else 0
             total = sp.total_lessons if sp else len(skill.lessons)
 
@@ -101,6 +121,7 @@ async def get_learning_path(
             title=unit.title,
             description=unit.description,
             color=unit.color,
+            is_premium_locked=is_premium_locked,
             skills=skills_out,
         ))
 

@@ -79,22 +79,64 @@ async def redeem_coupon(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Redeem a promo code. 'scaler95' adds 1000 diamonds/gems!"""
+    """Redeem a promo code. 'scaler95' adds 2000 diamonds and works once."""
     code_clean = payload.code.strip().lower()
     if code_clean == "scaler95":
-        user.gems += 1000
+        if user.has_redeemed_scaler95:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="You have already redeemed this promo code.",
+            )
+        user.gems += 2000
+        user.has_redeemed_scaler95 = True
         await db.flush()
         return CouponRedeemOut(
             success=True,
-            message="Coupon 'scaler95' redeemed! +1000 Diamonds added to your balance.",
-            gems_added=1000,
+            message="Coupon 'scaler95' redeemed! +2000 Diamonds added to your balance.",
+            gems_added=2000,
             new_gem_balance=user.gems,
         )
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid promo code. Use code 'scaler95' for 1000 free diamonds!",
+            detail="Invalid promo code. Use code 'scaler95' for 2000 free diamonds!",
         )
+
+
+@router.post("/shop/buy-premium")
+async def buy_premium(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Buy 7 Days Premium using 500 Diamonds."""
+    if user.gems < 500:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Not enough diamonds to buy premium.",
+        )
+    
+    user.gems -= 500
+    user.is_premium = True
+    
+    from datetime import datetime, timezone, timedelta
+    now = datetime.now(timezone.utc)
+    # If already premium and it's active, extend it. Otherwise start from now.
+    if user.premium_until and user.premium_until.tzinfo is None:
+        user.premium_until = user.premium_until.replace(tzinfo=timezone.utc)
+
+    if user.premium_until and user.premium_until > now:
+        user.premium_until = user.premium_until + timedelta(days=7)
+    else:
+        user.premium_until = now + timedelta(days=7)
+        
+    await db.flush()
+    return {
+        "success": True,
+        "message": "7 Days Premium activated!",
+        "is_premium": user.is_premium,
+        "premium_until": user.premium_until.isoformat(),
+        "new_gem_balance": user.gems,
+    }
 
 
 @router.post("/shop/buy-gems", response_model=CouponRedeemOut)

@@ -135,7 +135,14 @@ export default function LearnPage() {
                     )}
 
                     {/* Unit Banner */}
-                    <div className="rounded-3xl p-6 text-white shadow-md transition-transform hover:scale-[1.01]" style={{ backgroundColor: unit.color }}>
+                    <div className="rounded-3xl p-6 text-white shadow-md transition-transform hover:scale-[1.01] relative overflow-hidden" style={{ backgroundColor: unit.color }}>
+                      {unit.is_premium_locked && (
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[2px]">
+                          <div className="bg-purple-500 text-white text-sm font-black px-4 py-1.5 rounded-full shadow-lg flex items-center gap-2">
+                            <Lock className="h-4 w-4" /> PREMIUM REQUIRED TO UNLOCK
+                          </div>
+                        </div>
+                      )}
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-xs font-black uppercase tracking-wider text-white/80">{unit.title}</span>
                         <span className="text-xs font-extrabold bg-black/20 px-2.5 py-0.5 rounded-lg">3 Skills</span>
@@ -156,9 +163,9 @@ export default function LearnPage() {
                             className="relative flex flex-col items-center"
                             style={{ transform: `translateX(${offsets[index % offsets.length]}px)` }}
                           >
-                            {/* Crown Progress Badge */}
+                            {/* Star Progress Badge */}
                             <div className="absolute -top-3 z-10 flex h-7 items-center rounded-full border-2 border-yellow-400 bg-yellow-300 px-2 text-xs font-black text-yellow-900 shadow-xs">
-                              <Crown className="mr-1 h-3.5 w-3.5 fill-yellow-600 stroke-yellow-700" />
+                              <Star className="mr-1 h-3.5 w-3.5 fill-yellow-600 stroke-yellow-700" />
                               {skill.completed_lessons}/{skill.total_lessons}
                             </div>
 

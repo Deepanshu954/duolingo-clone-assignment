@@ -32,6 +32,9 @@ class UserOut(BaseModel):
     hearts: int
     streak_days: int
     gems: int
+    is_premium: bool
+    premium_until: Optional[datetime] = None
+    has_redeemed_scaler95: bool = False
     active_course_id: int = 1
     created_at: datetime
 
@@ -48,6 +51,9 @@ class ProfileOut(BaseModel):
     hearts: int
     streak_days: int
     gems: int
+    is_premium: bool
+    premium_until: Optional[datetime] = None
+    has_redeemed_scaler95: bool = False
     active_course_id: int = 1
     created_at: datetime
     total_lessons_completed: int
@@ -91,6 +97,7 @@ class UnitOut(BaseModel):
     title: str
     description: str
     color: str
+    is_premium_locked: bool = False
     skills: list[SkillProgressOut]
 
     class Config:
@@ -210,6 +217,14 @@ class CouponRedeemOut(BaseModel):
     success: bool
     message: str
     gems_added: int
+    new_gem_balance: int
+
+
+class BuyPremiumOut(BaseModel):
+    success: bool
+    message: str
+    is_premium: bool
+    premium_until: datetime
     new_gem_balance: int
 
 

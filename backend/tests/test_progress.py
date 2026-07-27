@@ -46,7 +46,7 @@ async def test_redeem_coupon_scaler95(client: AsyncClient):
     assert resp.status_code == 200
     data = resp.json()
     assert data["success"] is True
-    assert data["gems_added"] == 1000
+    assert data["gems_added"] == 2000
     assert data["new_gem_balance"] >= 1000
 
 

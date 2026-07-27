@@ -98,94 +98,39 @@ export default function ShopPage() {
             </div>
             <h1 className="text-3xl font-black text-gray-800 dark:text-slate-100">Duolingo Shop</h1>
             <p className="mt-1 text-sm font-bold text-gray-500 dark:text-slate-400">
-              Redeem promo codes, buy diamond packs, or refill your hearts!
+              Redeem promo codes or refill your hearts!
             </p>
           </div>
+          {/* Special Coupon Promo Box (Hidden if redeemed) */}
+          {!user?.has_redeemed_scaler95 && (
+            <div className="rounded-3xl border-4 border-yellow-300 bg-gradient-to-br from-amber-400 via-yellow-400 to-amber-500 p-6 text-yellow-950 shadow-xl dark:border-yellow-600 mb-8">
+              <div className="flex items-center gap-2 font-black text-xs uppercase tracking-wider text-yellow-900">
+                <Gift className="h-5 w-5 fill-yellow-200 stroke-yellow-900 animate-bounce" /> Special Promo Reward
+              </div>
+              <h2 className="mt-1 text-2xl font-black">Have a Coupon Code?</h2>
+              <p className="mt-1 text-xs font-extrabold text-yellow-900/80">
+                Use secret code <span className="underline font-black bg-yellow-300 px-1.5 py-0.5 rounded-lg text-yellow-950">scaler95</span> to instantly get 2,000 Free Diamonds (One-time use)!
+              </p>
 
-          {/* Special Coupon Promo Box */}
-          <div className="rounded-3xl border-4 border-yellow-300 bg-gradient-to-br from-amber-400 via-yellow-400 to-amber-500 p-6 text-yellow-950 shadow-xl dark:border-yellow-600">
-            <div className="flex items-center gap-2 font-black text-xs uppercase tracking-wider text-yellow-900">
-              <Gift className="h-5 w-5 fill-yellow-200 stroke-yellow-900 animate-bounce" /> Special Promo Reward
+              <form onSubmit={handleRedeemCoupon} className="mt-4 flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Enter promo code (e.g. scaler95)..."
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  className="flex-1 rounded-2xl border-2 border-yellow-600 bg-white/90 px-4 py-3 font-extrabold text-gray-800 placeholder-gray-400 outline-none focus:bg-white text-sm"
+                />
+                <button
+                  type="submit"
+                  disabled={!couponCode.trim() || redeeming}
+                  className="btn-3d btn-3d-green px-6 py-3 text-xs font-black flex items-center gap-1.5"
+                >
+                  {redeeming ? "REDEEMING..." : "REDEEM"}
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </form>
             </div>
-            <h2 className="mt-1 text-2xl font-black">Have a Coupon Code?</h2>
-            <p className="mt-1 text-xs font-extrabold text-yellow-900/80">
-              Use secret code <span className="underline font-black bg-yellow-300 px-1.5 py-0.5 rounded-lg text-yellow-950">scaler95</span> to instantly get 1,000 Free Diamonds!
-            </p>
-
-            <form onSubmit={handleRedeemCoupon} className="mt-4 flex gap-2">
-              <input
-                type="text"
-                placeholder="Enter promo code (e.g. scaler95)..."
-                value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value)}
-                className="flex-1 rounded-2xl border-2 border-yellow-600 bg-white/90 px-4 py-3 font-extrabold text-gray-800 placeholder-gray-400 outline-none focus:bg-white text-sm"
-              />
-              <button
-                type="submit"
-                disabled={!couponCode.trim() || redeeming}
-                className="btn-3d btn-3d-green px-6 py-3 text-xs font-black flex items-center gap-1.5"
-              >
-                {redeeming ? "REDEEMING..." : "REDEEM"}
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            </form>
-          </div>
-
-          {/* Diamond Store Packs */}
-          <div>
-            <h2 className="text-xl font-black mb-4 flex items-center gap-2">
-              <Gem className="h-6 w-6 fill-sky-400 text-sky-500" /> Diamond Packs
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Handful */}
-              <div className="duo-card p-5 flex flex-col items-center text-center hover:border-sky-400 transition-all">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-sky-100 dark:bg-sky-950/40 text-sky-500 mb-3">
-                  <Gem className="h-8 w-8 fill-sky-400" />
-                </div>
-                <h3 className="text-base font-black">Chest of Gems</h3>
-                <p className="text-xs font-extrabold text-sky-500 mt-1 mb-4">+500 Diamonds</p>
-                <button
-                  onClick={() => handleBuyGems(500, "Chest of Gems")}
-                  className="btn-3d btn-3d-blue w-full py-2.5 text-xs font-black"
-                >
-                  BUY +500
-                </button>
-              </div>
-
-              {/* Stack */}
-              <div className="duo-card p-5 flex flex-col items-center text-center border-2 border-yellow-300 dark:border-yellow-900/60 hover:border-yellow-400 transition-all relative overflow-hidden">
-                <span className="absolute top-2 right-2 rounded-full bg-yellow-400 px-2 py-0.5 text-[9px] font-black text-yellow-950 uppercase">POPULAR</span>
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-yellow-100 dark:bg-yellow-950/40 text-yellow-500 mb-3">
-                  <Gem className="h-10 w-10 fill-yellow-400" />
-                </div>
-                <h3 className="text-base font-black">Vault of Gems</h3>
-                <p className="text-xs font-extrabold text-yellow-500 mt-1 mb-4">+1,200 Diamonds</p>
-                <button
-                  onClick={() => handleBuyGems(1200, "Vault of Gems")}
-                  className="btn-3d btn-3d-yellow w-full py-2.5 text-xs font-black"
-                >
-                  BUY +1200
-                </button>
-              </div>
-
-              {/* Treasury */}
-              <div className="duo-card p-5 flex flex-col items-center text-center hover:border-purple-400 transition-all">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-purple-100 dark:bg-purple-950/40 text-purple-500 mb-3">
-                  <Gem className="h-10 w-10 fill-purple-400" />
-                </div>
-                <h3 className="text-base font-black">Treasury Vault</h3>
-                <p className="text-xs font-extrabold text-purple-500 mt-1 mb-4">+3,000 Diamonds</p>
-                <button
-                  onClick={() => handleBuyGems(3000, "Treasury Vault")}
-                  className="btn-3d btn-3d-green w-full py-2.5 text-xs font-black"
-                >
-                  BUY +3000
-                </button>
-              </div>
-            </div>
-          </div>
-
+          )}
           {/* Standard Power-Ups */}
           <div>
             <h2 className="text-xl font-black mb-4">Power-Ups & Restores</h2>
@@ -221,6 +166,39 @@ export default function ShopPage() {
                 <div className="mt-auto w-full">
                   <button disabled className="btn-3d btn-3d-blue w-full py-3 text-xs opacity-60">
                     COMING SOON (200 GEMS)
+                  </button>
+                </div>
+              </div>
+
+              {/* 7 Days Premium */}
+              <div className="duo-card p-6 flex flex-col items-center text-center border-2 border-purple-300 dark:border-purple-900/60 hover:border-purple-400 transition-all relative overflow-hidden">
+                <span className="absolute top-2 right-2 rounded-full bg-purple-400 px-2 py-0.5 text-[9px] font-black text-purple-950 uppercase">NEW</span>
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-purple-100 dark:bg-purple-950/40 text-purple-500 mb-3">
+                  <Sparkles className="h-8 w-8 fill-purple-400" />
+                </div>
+                <h3 className="text-lg font-black">7 Days Premium</h3>
+                <p className="text-xs font-bold text-gray-500 mt-1 mb-4">
+                  {user?.is_premium 
+                    ? `Active until ${new Date(user.premium_until!).toLocaleDateString()}` 
+                    : "Unlock all units and learn without limits!"}
+                </p>
+                <div className="mt-auto w-full">
+                  <button
+                    onClick={async () => {
+                      try {
+                        soundFX.playClick();
+                        const res = await api.buyPremium();
+                        await loadUser();
+                        soundFX.playCorrect();
+                        showAlert(res.message, "Premium Activated!", "success");
+                      } catch (error: any) {
+                        soundFX.playWrong();
+                        showAlert(error.message || "Failed to buy premium", "Purchase Error", "error");
+                      }
+                    }}
+                    className="btn-3d btn-3d-purple w-full py-3 text-xs flex items-center justify-center gap-1.5"
+                  >
+                    <Gem className="h-4 w-4 fill-sky-300" /> 500 GEMS
                   </button>
                 </div>
               </div>

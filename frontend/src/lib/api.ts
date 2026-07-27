@@ -48,6 +48,9 @@ export interface UserData {
   hearts: number;
   streak_days: number;
   gems: number;
+  is_premium: boolean;
+  premium_until: string | null;
+  has_redeemed_scaler95: boolean;
   active_course_id: number;
   created_at: string;
 }
@@ -81,6 +84,7 @@ export interface UnitData {
   title: string;
   description: string;
   color: string;
+  is_premium_locked: boolean;
   skills: SkillProgress[];
 }
 
@@ -189,11 +193,18 @@ export const api = {
   practiceForHeart: () =>
     apiFetch<HeartRefillResult>("/progress/hearts/practice", { method: "POST" }),
 
-  redeemCoupon: (code: string) =>
-    apiFetch<CouponResult>("/shop/redeem-coupon", {
+  async redeemCoupon(code: string): Promise<{ success: boolean; message: string; gems_added: number; new_gem_balance: number }> {
+    return apiFetch("/shop/redeem-coupon", {
       method: "POST",
       body: JSON.stringify({ code }),
-    }),
+    });
+  },
+
+  async buyPremium(): Promise<{ success: boolean; message: string; is_premium: boolean; premium_until: string; new_gem_balance: number }> {
+    return apiFetch("/shop/buy-premium", {
+      method: "POST",
+    });
+  },
 
   buyGems: (gems: number) =>
     apiFetch<CouponResult>("/shop/buy-gems", {

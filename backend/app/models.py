@@ -40,6 +40,9 @@ class User(Base):
     streak_days: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     streak_last_date: Mapped[Optional[py_date]] = mapped_column(Date, nullable=True)
     gems: Mapped[int] = mapped_column(Integer, default=500, nullable=False)
+    is_premium: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    premium_until: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    has_redeemed_scaler95: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     active_course_id: Mapped[int] = mapped_column(Integer, ForeignKey("courses.id"), default=1, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utc_now, nullable=False)
 

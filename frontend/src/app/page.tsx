@@ -82,7 +82,7 @@ export default function LearnPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 transition-colors dark:bg-slate-900 dark:text-slate-100 md:pl-64">
-      <Header user={user} onRefillHearts={() => setIsRefillOpen(true)} />
+      <Header user={user} onRefillHearts={() => setIsRefillOpen(true)} onCourseChange={loadData} />
       <Sidebar />
 
       <div className="flex justify-center">

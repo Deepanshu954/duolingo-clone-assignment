@@ -40,6 +40,14 @@ export default function PracticePage() {
     soundFX.playClick();
 
     try {
+      let learner = user ?? await api.getUser();
+      if (learner.hearts < 5) {
+        const reward = await api.practiceForHeart();
+        learner = { ...learner, hearts: reward.hearts, gems: reward.gems };
+        setUser(learner);
+        showAlert(reward.message, "Practice Reward", "success");
+      }
+
       // Get learning path to find unlocked lesson
       const pathData = await api.getPath();
       let targetLessonId: number | null = null;
@@ -154,7 +162,16 @@ export default function PracticePage() {
       <RefillModal
         isOpen={isRefillOpen}
         onClose={() => setIsRefillOpen(false)}
-        onConfirmRefill={() => setIsRefillOpen(false)}
+        onConfirmRefill={async () => {
+          try {
+            const result = await api.refillHearts();
+            setUser((prev) => prev ? { ...prev, hearts: result.hearts, gems: result.gems } : prev);
+            setIsRefillOpen(false);
+            showAlert(result.message, "Hearts Updated", "success");
+          } catch (e: unknown) {
+            showAlert(e instanceof Error ? e.message : "Failed to refill hearts", "Refill Error", "error");
+          }
+        }}
         userGems={user?.gems || 0}
       />
       <CustomAlertModal

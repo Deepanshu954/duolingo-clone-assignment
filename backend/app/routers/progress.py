@@ -14,6 +14,7 @@ from app.schemas import (
     CouponRedeemIn,
     CouponRedeemOut,
     HeartRefillOut,
+    PracticeHeartOut,
     SimulateDayOut,
 )
 
@@ -47,6 +48,28 @@ async def refill_hearts(
         hearts=user.hearts,
         gems=user.gems,
         message="Hearts refilled!",
+    )
+
+
+@router.post("/progress/hearts/practice", response_model=PracticeHeartOut)
+async def practice_for_heart(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Mocked practice reward: restore one heart for free, up to the max."""
+    if user.hearts < settings.DEFAULT_HEARTS:
+        user.hearts += 1
+        await db.flush()
+        return PracticeHeartOut(
+            hearts=user.hearts,
+            gems=user.gems,
+            message="Practice complete! You earned 1 heart.",
+        )
+
+    return PracticeHeartOut(
+        hearts=user.hearts,
+        gems=user.gems,
+        message="Hearts already full. Practice started without a heart reward.",
     )
 
 

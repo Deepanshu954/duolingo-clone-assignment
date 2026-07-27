@@ -15,6 +15,27 @@ async def test_heart_refill(client: AsyncClient):
 
 
 @pytest.mark.asyncio
+async def test_practice_for_heart_restores_one_heart(client: AsyncClient):
+    """Practice reward should restore one heart for free when below max."""
+    start = await client.post("/api/v1/lessons/1/start", headers={"X-User-ID": "1"})
+    session_id = start.json()["session_id"]
+
+    wrong = await client.post(
+        f"/api/v1/lessons/sessions/{session_id}/submit",
+        json={"answer": "Wrong answer"},
+        headers={"X-User-ID": "1"},
+    )
+    assert wrong.status_code == 200
+    hearts_after_mistake = wrong.json()["hearts"]
+
+    resp = await client.post("/api/v1/progress/hearts/practice", headers={"X-User-ID": "1"})
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["hearts"] == min(5, hearts_after_mistake + 1)
+    assert "Practice" in data["message"] or "full" in data["message"]
+
+
+@pytest.mark.asyncio
 async def test_redeem_coupon_scaler95(client: AsyncClient):
     """Redeeming code 'scaler95' adds 1000 diamonds/gems."""
     resp = await client.post(

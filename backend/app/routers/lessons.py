@@ -6,7 +6,7 @@ from datetime import date, datetime, timezone
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -323,19 +323,29 @@ async def submit_answer(
 
     # Check if session is complete (all exercises done or no hearts)
     if session.current_index >= len(exercises):
+        prior_completion_result = await db.execute(
+            select(LessonSession.id).where(
+                LessonSession.user_id == user.id,
+                LessonSession.lesson_id == session.lesson_id,
+                LessonSession.completed_at.isnot(None),
+                LessonSession.id != session.id,
+            ).limit(1)
+        )
+        already_completed_lesson = prior_completion_result.scalar_one_or_none() is not None
+
         completed = True
         session.completed_at = datetime.now(timezone.utc)
-        # Bonus XP for lesson completion
-        session.xp_earned += settings.XP_BONUS_LESSON_COMPLETE
-        await _award_xp(db, user, settings.XP_BONUS_LESSON_COMPLETE)
 
-        # Check skill completion and unlock next
-        lesson_result = await db.execute(
-            select(Lesson).where(Lesson.id == session.lesson_id)
-        )
-        lesson = lesson_result.scalar_one_or_none()
-        if lesson:
-            await _check_skill_completion(db, user, lesson)
+        if not already_completed_lesson:
+            session.xp_earned += settings.XP_BONUS_LESSON_COMPLETE
+            await _award_xp(db, user, settings.XP_BONUS_LESSON_COMPLETE)
+
+            lesson_result = await db.execute(
+                select(Lesson).where(Lesson.id == session.lesson_id)
+            )
+            lesson = lesson_result.scalar_one_or_none()
+            if lesson:
+                await _check_skill_completion(db, user, lesson)
 
     elif user.hearts <= 0:
         # Out of hearts — session ends but not "completed"

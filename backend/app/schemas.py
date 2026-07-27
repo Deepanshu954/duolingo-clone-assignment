@@ -186,6 +186,12 @@ class HeartRefillOut(BaseModel):
     message: str
 
 
+class PracticeHeartOut(BaseModel):
+    hearts: int
+    gems: int
+    message: str
+
+
 class SimulateDayOut(BaseModel):
     streak_days: int
     streak_last_date: Optional[date] = None

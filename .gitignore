@@ -40,6 +40,10 @@ htmlcov/
 *.sqlite
 *.sqlite3
 backend/db/*.db
+test_duolingo.db
+
+# Local assignment/reference files
+Assignment Duolingo Clone.pdf
 
 # OS & IDE
 .DS_Store

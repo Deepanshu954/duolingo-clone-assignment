@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: duolingo-clone-assignment-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: DATABASE_URL
+        value: sqlite+aiosqlite:///./db/duolingo.db
+      - key: CORS_ORIGINS
+        value: http://localhost:3000
+      - key: CORS_ORIGIN_REGEX
+        value: https://.*\.vercel\.app

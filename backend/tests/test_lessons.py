@@ -99,6 +99,42 @@ async def test_complete_lesson_flow(client: AsyncClient):
 
 
 @pytest.mark.asyncio
+async def test_replaying_completed_lesson_does_not_overcount_skill_progress(client: AsyncClient):
+    """Completing the same lesson twice should not increment crowns/progress twice."""
+
+    async def complete_lesson_one() -> None:
+        start = await client.post("/api/v1/lessons/1/start", headers={"X-User-ID": "1"})
+        session_id = start.json()["session_id"]
+        answers = [
+            "Hola",
+            "Buenos días",
+            "Hello",
+            "Buenos días",
+            "Hola",
+            {"Hola": "Hello", "Buenos días": "Good morning", "Gracias": "Thank you"},
+            "Hola",
+            "Hello, Good morning",
+        ]
+        for answer in answers:
+            resp = await client.post(
+                f"/api/v1/lessons/sessions/{session_id}/submit",
+                json={"answer": answer},
+                headers={"X-User-ID": "1"},
+            )
+            assert resp.status_code == 200
+
+    await complete_lesson_one()
+    path_after_first = await client.get("/api/v1/path", headers={"X-User-ID": "1"})
+    first_skill = path_after_first.json()["units"][0]["skills"][0]
+    assert first_skill["completed_lessons"] == 1
+
+    await complete_lesson_one()
+    path_after_second = await client.get("/api/v1/path", headers={"X-User-ID": "1"})
+    first_skill_again = path_after_second.json()["units"][0]["skills"][0]
+    assert first_skill_again["completed_lessons"] == 1
+
+
+@pytest.mark.asyncio
 async def test_get_session_status(client: AsyncClient):
     """Get session status after starting."""
     start = await client.post("/api/v1/lessons/1/start", headers={"X-User-ID": "1"})

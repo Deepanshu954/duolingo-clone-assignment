@@ -1,9 +1,10 @@
 /**
- * API client — wraps fetch with base URL and X-User-ID header.
- * All calls go through Next.js rewrites (no CORS in dev).
+ * API client - wraps fetch with base URL and X-User-ID header.
+ * Local dev uses Next.js rewrites. Production can point directly at the hosted FastAPI URL.
  */
 
-const API_BASE = "/api/v1";
+const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+const API_BASE = configuredApiUrl ? `${configuredApiUrl}/api/v1` : "/api/v1";
 
 interface FetchOptions extends RequestInit {
   userId?: number;
@@ -184,6 +185,9 @@ export const api = {
 
   refillHearts: () =>
     apiFetch<HeartRefillResult>("/progress/hearts/refill", { method: "POST" }),
+
+  practiceForHeart: () =>
+    apiFetch<HeartRefillResult>("/progress/hearts/practice", { method: "POST" }),
 
   redeemCoupon: (code: string) =>
     apiFetch<CouponResult>("/shop/redeem-coupon", {

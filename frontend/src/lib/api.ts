@@ -448,10 +448,10 @@ async function apiFetch<T>(path: string, options: FetchOptions = {}): Promise<T>
   }
 
   // Graceful fallback for offline / static host deployments
-  return getFallbackData<T>(path, fetchOptions.body ? String(fetchOptions.body) : null);
+  return await getFallbackData<T>(path, fetchOptions.body ? String(fetchOptions.body) : null);
 }
 
-function getFallbackData<T>(path: string, requestBody: string | null): T {
+async function getFallbackData<T>(path: string, requestBody: string | null): Promise<T> {
   const currentId = getActiveCourseId();
   const courseNames: Record<number, string> = { 1: "Spanish", 2: "French", 3: "German", 4: "Japanese", 5: "Italian" };
 
@@ -593,15 +593,53 @@ function getFallbackData<T>(path: string, requestBody: string | null): T {
   const requestedSessionId = sessionMatch ? sessionMatch[1] : null;
 
   let targetCourseId = currentId;
-  if (requestedSessionId && requestedSessionId.includes("demo-fallback-session-")) {
-    const parts = requestedSessionId.split("-");
-    const lastNum = parseInt(parts[parts.length - 1], 10);
-    if (!isNaN(lastNum) && lastNum >= 1 && lastNum <= 5) {
-      targetCourseId = lastNum;
+  let targetLessonId = "101";
+
+  if (path.includes("/lessons/sessions/")) {
+    const sessionMatch = path.match(/\/lessons\/sessions\/([^/]+)/);
+    const requestedSessionId = sessionMatch ? sessionMatch[1] : null;
+    if (requestedSessionId && requestedSessionId.includes("demo-fallback-session-")) {
+      const parts = requestedSessionId.split("-");
+      const lastPart = parts[parts.length - 1];
+      if (lastPart) targetLessonId = lastPart;
+      
+      // Attempt to derive course ID from lesson ID (e.g. lesson 101 -> course 1, lesson 302 -> course 3, if not standard fallback)
+      // Usually lessons are unique in the DB. The JSON is keyed by course_id -> lesson_id.
     }
+  } else if (path.includes("/lessons/") && path.includes("/start")) {
+    const lessonIdMatch = path.match(/\/lessons\/(\d+)\/start/);
+    if (lessonIdMatch) targetLessonId = lessonIdMatch[1];
   }
 
-  const activeExercises = LANGUAGE_EXERCISES[targetCourseId] || LANGUAGE_EXERCISES[1];
+  // Load active exercises
+  let activeExercises = LANGUAGE_EXERCISES[targetCourseId] || LANGUAGE_EXERCISES[1];
+  if (typeof window !== "undefined") {
+    try {
+      if (!(window as any)._curriculumCache) {
+        const res = await fetch("/curriculum.json");
+        if (res.ok) {
+          (window as any)._curriculumCache = await res.json();
+        }
+      }
+      const cache = (window as any)._curriculumCache;
+      if (cache) {
+        // Find the lesson in any course, or the current course
+        if (cache[targetCourseId] && cache[targetCourseId][targetLessonId]) {
+          activeExercises = cache[targetCourseId][targetLessonId];
+        } else {
+          // search all courses for this lesson ID
+          for (const cId in cache) {
+            if (cache[cId][targetLessonId]) {
+              activeExercises = cache[cId][targetLessonId];
+              break;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to load curriculum.json", e);
+    }
+  }
 
   if (path.includes("/lessons/") && path.includes("/start")) {
     const lessonIdMatch = path.match(/\/lessons\/(\d+)\/start/);

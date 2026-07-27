@@ -8,7 +8,7 @@ A full-stack Duolingo-style learning app built for the assignment brief. It recr
 - Backend: Python, FastAPI, SQLAlchemy async ORM
 - Database: SQLite with seeded course and learner data
 - Auth: Simplified default learner using `X-User-ID: 1`
-- Deployment target: Vercel full-stack demo, with Render backend config included for a two-service deployment
+- Deployment target: Vercel full-stack services, with Render backend config included as an optional fallback
 
 ## Features
 
@@ -30,7 +30,7 @@ Tailwind components           SQLAlchemy models
 NEXT_PUBLIC_API_URL           SQLite database + seed data
 ```
 
-Local development uses Next.js rewrites from `/api/v1/*` to `http://localhost:8000/api/v1/*`. Hosted builds can either call a separate backend using `NEXT_PUBLIC_API_URL` or use the included Vercel Python function at same-origin `/api/v1`.
+Local development uses Next.js rewrites from `/api/v1/*` to `http://localhost:8000/api/v1/*`. Hosted builds can either call a separate backend using `NEXT_PUBLIC_API_URL` or use the included Vercel backend service at same-origin `/api/v1`.
 
 ## Database Schema
 
@@ -120,8 +120,8 @@ Full-stack demo on Vercel:
 
 - Import the GitHub repository or deploy with `npx vercel --prod`.
 - Use the root `vercel.json`.
-- Leave `NEXT_PUBLIC_API_URL` unset to use the same-origin Vercel Python backend.
-- The Vercel serverless backend stores SQLite in `/tmp`, so demo data can reset between cold starts.
+- Leave `NEXT_PUBLIC_API_URL` unset to use the same-origin Vercel FastAPI backend service.
+- The Vercel backend stores SQLite in `/tmp`, so demo data can reset between cold starts.
 
 Optional backend on Render:
 

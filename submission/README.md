@@ -24,7 +24,7 @@
 ## Deployment Notes
 
 - Primary target: full-stack Vercel deployment from the repository root using `vercel.json`.
-- Leave `NEXT_PUBLIC_API_URL` unset for same-origin Vercel Python backend routing at `/api/v1`.
+- Leave `NEXT_PUBLIC_API_URL` unset for same-origin Vercel FastAPI backend routing at `/api/v1`.
 - Optional backend target: Render web service from `render.yaml`.
 - If using Render separately, set `NEXT_PUBLIC_API_URL` in Vercel to the Render backend base URL, for example `https://duolingo-clone-assignment-api.onrender.com`.
 - Add the final Vercel URL to backend `CORS_ORIGINS` on Render if needed. The backend also allows `https://*.vercel.app` via `CORS_ORIGIN_REGEX`.

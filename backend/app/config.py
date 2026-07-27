@@ -1,10 +1,18 @@
 from pydantic_settings import BaseSettings
+import os
+
+
+DEFAULT_DATABASE_URL = (
+    "sqlite+aiosqlite:////tmp/duolingo.db"
+    if os.environ.get("VERCEL") == "1"
+    else "sqlite+aiosqlite:///./db/duolingo.db"
+)
 
 
 class Settings(BaseSettings):
     """Application settings loaded from environment / .env."""
 
-    DATABASE_URL: str = "sqlite+aiosqlite:///./db/duolingo.db"
+    DATABASE_URL: str = DEFAULT_DATABASE_URL
     CORS_ORIGINS: str = "http://localhost:3000"
     CORS_ORIGIN_REGEX: str = r"https://.*\.vercel\.app"
     DEFAULT_HEARTS: int = 5
